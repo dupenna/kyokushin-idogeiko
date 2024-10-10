@@ -2,13 +2,18 @@ import { DictionaryTypes, MoveTypes, Directions, Heights, Stands, Variations } f
 import { Dictionary, Move } from "./types";
 
 const dictionary:Array<Dictionary> = [{
+    name: 'uchikomi',
+    description: 'golpe penetrante',
+    type: DictionaryTypes.Type,
+  },
+  {
     name: 'uchi',
-		description: 'ataque',
+		description: 'golpe',
 		type: DictionaryTypes.Category,
 	},
 	{
     name: 'zuki',
-		description: 'ataque',
+		description: 'soco',
 		type: DictionaryTypes.Category,
 	},
 	{
@@ -91,6 +96,11 @@ const dictionary:Array<Dictionary> = [{
 		description: 'antebraço',
 		type: DictionaryTypes.Weapon,
 	},
+  {
+    name: 'jochudan',
+    description: 'cabeça e tronco',
+    type: DictionaryTypes.Height,
+  },
 	{
     name: 'jodan',
 		description: 'cabeça',
@@ -151,6 +161,11 @@ const dictionary:Array<Dictionary> = [{
 		description: 'cima para baixo',
 		type: DictionaryTypes.Direction,
 	},
+  {
+    name: 'shita',
+		description: 'por baixo',
+		type: DictionaryTypes.Type,
+	},
 	{
     name: 'soto',
 		description: 'fora para dentro',
@@ -159,11 +174,6 @@ const dictionary:Array<Dictionary> = [{
 	{
     name: 'uti',
 		description: 'dentro para fora',
-		type: DictionaryTypes.Type,
-	},
-	{
-    name: 'uchikomi',
-		description: 'penetrante',
 		type: DictionaryTypes.Type,
 	},
 	{

@@ -257,12 +257,28 @@ const App = () => {
             .replace('{variation}', move.variation?.name || '')
             .replace('{direction}', move.direction?.name || '')
 
-          const { words, dictionaryFound } = dictionaryReplace({ str: moveText, dictionary })
+        const { newText, dictionaryFound } = dictionaryReplace({ text: moveText, dictionary })
 
-        return (
+        console.log( { newText, dictionaryFound } )
+
+        return(
           <p key={move.name}>
-            {words.map((word, index) => {
-              if (dictionaryFound[index]) return <WordDictionary name={word} description={dictionaryFound[index].description} type={dictionaryFound[index].type} />
+            {newText.split(' ').map((word) => {
+              if (word.match(/{\d*}/)) {
+                const matches = word.match(/{(\d*)}/);
+                
+                if (!matches) return word;
+
+                const index = Number(matches[1])
+
+                return(
+                  <WordDictionary 
+                    name={dictionaryFound[index].name}
+                    description={dictionaryFound[index].description} 
+                    type={dictionaryFound[index].type}
+                  />
+                )
+              }
 
               return <Word>{capitalizeFirstLetters(word)}</Word>
             })}

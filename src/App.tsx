@@ -1,27 +1,30 @@
 import styled from 'styled-components';
 
-import { moves } from './data/data';
+import { dictionary, moves } from './data/data';
 import { Stands, MoveTypes, Directions } from './data/enums';
 import { Direction, Height, Kyu, Move, Variation } from './data/types';
+
+import { Tooltip } from 'react-tooltip'
 
 import { useState } from 'react';
 
 import logo from './assets/logo.svg'
 
 import './App.css'
-import capitalizeFirstLetter from './utils/capitalizeFirstLetters';
+import capitalizeFirstLetters from './utils/capitalizeFirstLetters';
+import dictionaryReplace from './utils/dictionaryReplace';
 
 const Container = styled.div`
   position: relative;
   display: flex;
   flex-direction: column;
   align-items: center;
-  background-color: #DDD;
+  background-color: #FFF;
   height: 100%;
   border-radius: 1rem;
   max-width: 350px;
   margin: 0 auto;
-  box-shadow: 0 0 1rem #999;
+  box-shadow: 0 0 1rem #BBB;
   padding: 1rem;
   overflow-y: scroll;
 `;
@@ -62,6 +65,7 @@ const Option = styled.select`
   font-size: .8rem;
   height: 1.6rem;
   text-align: center;
+  border-radius: .4rem;
 `;
 
 const BuildButton = styled.button`
@@ -69,8 +73,25 @@ const BuildButton = styled.button`
   width: 100%;
   max-width: 350px;
   font-size: .8rem;
-  height: 1.6rem;
+  height: 2rem;
+  background-color: #DA251C;
+  border-radius: .4rem;
+  color: #FFF;
+  cursor: pointer;
+  font-weight: bold;
+  border: 0;
   text-align: center;
+`;
+
+const Word = styled.span`
+  margin-left: 5px;
+`;
+
+const WordWithDescription = styled.span`
+  position: relative;
+  margin-left: 5px;
+  border-bottom: 1px dotted #000;
+  cursor: pointer;
 `;
 
 interface MoveWithScore extends Move {
@@ -146,6 +167,21 @@ const buildMoves = (params: { kyu: Kyu, stand: Stands, amount: number }) => {
   return(movesFinal)
 }
 
+const WordDictionary = (params: { name: string, description: string, type: string }) => {
+  const { name, description, type } = params;
+
+  return (
+    <WordWithDescription>
+      <a 
+        data-tooltip-id="move-tooltip" 
+        data-tooltip-html={`<small>${type}</small><br />${capitalizeFirstLetters(description, true)}`}
+      >
+        {capitalizeFirstLetters(name)}
+      </a>
+    </WordWithDescription>
+  )
+}
+
 const App = () => {
 
   const [ idogeiko, setIdogeiko ] = useState(buildMoves({ kyu: 10, stand: Stands.Zenkutsu, amount: 3 }))
@@ -161,11 +197,11 @@ const App = () => {
   const handleStandChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
     const stand = e.target.value;
     switch (stand) {
-      case 'zenkutsu':
+      case 'zenkutsu dachi':
         setCurrentStand(Stands.Zenkutsu);
         setIdogeiko(buildMoves({ kyu: currentKyu, stand: Stands.Zenkutsu, amount: currentAmount }))
         break;
-      case 'kokutsu':
+      case 'kokutsu dachi':
         setCurrentStand(Stands.Kokutsu);
         setIdogeiko(buildMoves({ kyu: currentKyu, stand: Stands.Kokutsu, amount: currentAmount }))
         break;
@@ -196,8 +232,8 @@ const App = () => {
         </Option>
         
         <Option defaultValue={currentStand} onChange={e => handleStandChange(e)}>
-          <option value={Stands.Zenkutsu} key={Stands.Zenkutsu}>{capitalizeFirstLetter(Stands.Zenkutsu)}</option>
-          <option value={Stands.Kokutsu} key={Stands.Kokutsu}>{capitalizeFirstLetter(Stands.Kokutsu)}</option>
+          <option value={Stands.Zenkutsu} key={Stands.Zenkutsu}>{capitalizeFirstLetters(Stands.Zenkutsu)}</option>
+          <option value={Stands.Kokutsu} key={Stands.Kokutsu}>{capitalizeFirstLetters(Stands.Kokutsu)}</option>
         </Option>
 
         <Option defaultValue={currentAmount} onChange={e => handleAmountChange(e)}>
@@ -211,7 +247,7 @@ const App = () => {
 
       <Subtitle>Movimentos</Subtitle>
 
-      <p>{capitalizeFirstLetter(currentStand)} (posição)</p>
+      <p>{capitalizeFirstLetters(currentStand)} (posição)</p>
 
       {idogeiko.map(move => {
         const moveText = ''
@@ -219,10 +255,22 @@ const App = () => {
           + move.name
             .replace('{height}', move.height?.name || '')
             .replace('{variation}', move.variation?.name || '')
-            .replace('{direction}', move.direction?.name || '');
+            .replace('{direction}', move.direction?.name || '')
 
-        return <p key={move.name}>{capitalizeFirstLetter(moveText)}</p>
+          const { words, dictionaryFound } = dictionaryReplace({ str: moveText, dictionary })
+
+        return (
+          <p key={move.name}>
+            {words.map((word, index) => {
+              if (dictionaryFound[index]) return <WordDictionary name={word} description={dictionaryFound[index].description} type={dictionaryFound[index].type} />
+
+              return <Word>{capitalizeFirstLetters(word)}</Word>
+            })}
+          </p>
+        )
       })}
+
+      <Tooltip id="move-tooltip" />
     </Container>
   )
 }

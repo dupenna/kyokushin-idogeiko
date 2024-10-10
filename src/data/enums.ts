@@ -3,6 +3,10 @@ enum DictionaryTypes {
   Height = 'altura',
   Variation = 'variação',
   Direction = 'direção',
+  Category = 'categoria',
+  VitalPoint = 'ponto vital',
+  Word = 'palavra',
+  Type = 'tipo',
 }
 
 enum Heights {

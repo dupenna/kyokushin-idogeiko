@@ -2,6 +2,51 @@ import { DictionaryTypes, MoveTypes, Directions, Heights, Stands, Variations } f
 import { Dictionary, Move } from "./types";
 
 const dictionary:Array<Dictionary> = [{
+    name: 'uchi',
+		description: 'ataque',
+		type: DictionaryTypes.Category,
+	},
+	{
+    name: 'zuki',
+		description: 'ataque',
+		type: DictionaryTypes.Category,
+	},
+	{
+    name: 'uke',
+		description: 'defesa',
+		type: DictionaryTypes.Category,
+	},
+	{
+    name: 'oi',
+		description: 'lado da perna da frente',
+		type: DictionaryTypes.Direction,
+	},
+	{
+    name: 'gyaku',
+		description: 'lado da perna de trás',
+		type: DictionaryTypes.Direction,
+	},
+	{
+    name: 'gamem',
+		description: 'témpora',
+		type: DictionaryTypes.VitalPoint,
+	},
+	{
+    name: 'hizo',
+		description: 'costela',
+		type: DictionaryTypes.VitalPoint,
+	},
+  {
+    name: 'sakotsu',
+    description: 'clavícula',
+    type: DictionaryTypes.VitalPoint,
+  },
+  {
+    name: 'barai',
+		description: 'varrer',
+		type: DictionaryTypes.Word,
+	},
+	{
     name: 'seiken',
 		description: 'parte da frente da mão',
 		type: DictionaryTypes.Weapon,
@@ -84,7 +129,7 @@ const dictionary:Array<Dictionary> = [{
 	{
     name: 'mawashi',
 		description: 'circular',
-		type: DictionaryTypes.Direction,
+		type: DictionaryTypes.Type,
 	},
 	{
     name: 'yoko',
@@ -109,12 +154,17 @@ const dictionary:Array<Dictionary> = [{
 	{
     name: 'soto',
 		description: 'fora para dentro',
-		type: DictionaryTypes.Direction,
+		type: DictionaryTypes.Type,
 	},
 	{
     name: 'uti',
 		description: 'dentro para fora',
-		type: DictionaryTypes.Direction,
+		type: DictionaryTypes.Type,
+	},
+	{
+    name: 'uchikomi',
+		description: 'penetrante',
+		type: DictionaryTypes.Type,
 	},
 	{
     name: 'morote',

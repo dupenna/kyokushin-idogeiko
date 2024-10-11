@@ -8,7 +8,8 @@ import { Tooltip } from 'react-tooltip'
 
 import { MdOutlineShield } from "react-icons/md";
 import { LuSword } from "react-icons/lu";
-import { BsPersonStanding } from "react-icons/bs";
+import { PiPersonSimpleTaiChiBold } from "react-icons/pi";
+import { HiOutlineSpeakerWave } from "react-icons/hi2";
 
 import { useState } from 'react';
 
@@ -100,24 +101,32 @@ const Moves = styled.ul`
 
 const MoveItem = styled.li`
   position: relative;
+  width: fit-content;
   list-style: none;
   margin: 5px 0;
   white-space: nowrap;
-  padding-left: 1rem;
-  & svg {
+  padding-left: 1.3rem;
+  & .type_icon {
     position: absolute;
     left: 0;
     top: 5px;
   }
+  & .play_sound {
+    position: absolute;
+    right: -1.2rem;
+    height: 20px;
+    width: 20px;
+    padding: 2px;
+    top: 3px;
+  }
 `;
 
 const Word = styled.span`
-  margin-left: 5px;
+  
 `;
 
 const WordWithDescription = styled.span`
   position: relative;
-  margin-left: 5px;
   border-bottom: 1px dotted #000;
   cursor: pointer;
 `;
@@ -243,7 +252,20 @@ const App = () => {
   const handleRegenerateClick = () => {
     setIdogeiko(buildMoves({ kyu: currentKyu, stand: currentStand, amount: currentAmount }))
   }
-  
+
+  const tts = new SpeechSynthesisUtterance()
+  const synth = window.speechSynthesis;
+
+  const voices = synth.getVoices();
+  const voice = voices.find(voice => voice.voiceURI === 'Google 日本語');
+
+  if (voice) tts.voice = voice;
+
+  const playText = (text: string) => {
+    tts.text = text;
+    window.speechSynthesis.speak(tts);
+  }
+
   return (
     <Container>
       <Header>
@@ -279,8 +301,9 @@ const App = () => {
 
       <Moves>
         <MoveItem>
-          <BsPersonStanding />
-          <Word>{capitalizeFirstLetters(currentStand)} (posição)</Word>
+          <PiPersonSimpleTaiChiBold className='type_icon' />
+          <Word>{capitalizeFirstLetters(currentStand)}</Word>&nbsp;
+          <HiOutlineSpeakerWave className='play_sound' onClick={_e => playText(currentStand)} />
         </MoveItem>
 
         {idogeiko.map(move => {
@@ -297,8 +320,8 @@ const App = () => {
 
           return(
             <MoveItem key={move.name}>
-              {move.type == MoveTypes.Defense && <MdOutlineShield />}
-              {move.type == MoveTypes.Strike && <LuSword />}
+              {move.type == MoveTypes.Defense && <MdOutlineShield className='type_icon' />}
+              {move.type == MoveTypes.Strike && <LuSword className='type_icon' />}
 
               {newText.split(' ').map((word) => {
                 if (word.match(/{\d*}/)) {
@@ -309,16 +332,26 @@ const App = () => {
                   const index = Number(matches[1])
 
                   return(
-                    <WordDictionary 
-                      name={dictionaryFound[index].name}
-                      description={dictionaryFound[index].description} 
-                      type={dictionaryFound[index].type}
-                    />
+                    <>
+                      <WordDictionary 
+                        name={dictionaryFound[index].name}
+                        description={dictionaryFound[index].description} 
+                        type={dictionaryFound[index].type}
+                      />
+                      &nbsp;
+                    </>
                   )
                 }
 
-                return <Word>{capitalizeFirstLetters(word)}</Word>
-              })}
+                return(
+                  <>
+                    <Word>{capitalizeFirstLetters(word)}</Word>
+                    &nbsp;
+                  </>
+                  )
+                })}
+
+                <HiOutlineSpeakerWave className='play_sound' onClick={_e => playText(moveText)} />
             </MoveItem>
           )
         })}

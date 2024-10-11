@@ -11,7 +11,7 @@ import { LuSword } from "react-icons/lu";
 import { PiPersonSimpleTaiChiBold } from "react-icons/pi";
 import { HiOutlineSpeakerWave } from "react-icons/hi2";
 
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 
 import logo from './assets/logo.svg'
 
@@ -220,11 +220,11 @@ const WordDictionary = (params: { name: string, description: string, type: strin
 }
 
 const App = () => {
-
   const [ idogeiko, setIdogeiko ] = useState(buildMoves({ kyu: 10, stand: Stands.Zenkutsu, amount: 3 }))
   const [ currentKyu, setCurrentKyu ] = useState<Kyu>(10)
   const [ currentStand, setCurrentStand ] = useState<Stands>(Stands.Zenkutsu)
   const [ currentAmount, setCurrentAmount ] = useState<number>(3)
+  const [voices, setVoices] = useState<Array<SpeechSynthesisVoice>>([]);
 
   const handleKyuChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
     const kyu = Number(e.target.value);
@@ -253,19 +253,51 @@ const App = () => {
     setIdogeiko(buildMoves({ kyu: currentKyu, stand: currentStand, amount: currentAmount }))
   }
 
-  const tts = new SpeechSynthesisUtterance()
-  const synth = window.speechSynthesis;
+  // const tts = new SpeechSynthesisUtterance()
+  // const synth = window.speechSynthesis;
 
-  const voices = synth.getVoices();
-  const voice = voices.find(voice => voice.voiceURI === 'Google 日本語');
+  // const voices = synth.getVoices();
+  // const voice = voices.find(voice => voice.voiceURI === 'Google 日本語');
 
-  if (voice) tts.voice = voice;
+  // if (voice) tts.voice = voice;
+  // else console.warn('A voz Google 日本語 não foi encontrada', {voices})
 
-  const playText = (text: string) => {
-    tts.text = text;
-    window.speechSynthesis.speak(tts);
-  }
+  // const speakText = (text: string) => {
+  //   tts.text = text;
+  //   window.speechSynthesis.speak(tts);
+  // }
 
+  useEffect(() => {
+    const synth = window.speechSynthesis;
+
+    const loadVoices = () => {
+      const availableVoices = synth.getVoices();
+      setVoices(availableVoices);
+    };
+
+    if (synth.onvoiceschanged !== undefined) {
+      synth.onvoiceschanged = loadVoices;
+    }
+
+    loadVoices();
+  }, []);
+
+  const speakText = (text: string) => {
+    if (voices.length > 0) {
+      const tts = new SpeechSynthesisUtterance(text);
+      const voice = voices.find(voice => voice.voiceURI === 'Google 日本語');
+
+      if (voice) {
+        tts.voice = voice;
+        window.speechSynthesis.speak(tts);
+      } else {
+        console.warn('A voz Google 日本語 não foi encontrada', { voices });
+      }
+    } else {
+      console.warn('As vozes ainda não estão disponíveis');
+    }
+  };
+  
   return (
     <Container>
       <Header>
@@ -303,7 +335,7 @@ const App = () => {
         <MoveItem>
           <PiPersonSimpleTaiChiBold className='type_icon' />
           <Word>{capitalizeFirstLetters(currentStand)}</Word>&nbsp;
-          <HiOutlineSpeakerWave className='play_sound' onClick={_e => playText(currentStand)} />
+          <HiOutlineSpeakerWave className='play_sound' onClick={_e => speakText(currentStand)} />
         </MoveItem>
 
         {idogeiko.map(move => {
@@ -315,8 +347,6 @@ const App = () => {
               .replace('{direction}', move.direction?.name || '')
 
           const { newText, dictionaryFound } = dictionaryReplace({ text: moveText, dictionary })
-
-          console.log( { newText, dictionaryFound } )
 
           return(
             <MoveItem key={move.name}>
@@ -334,6 +364,7 @@ const App = () => {
                   return(
                     <>
                       <WordDictionary 
+                        key={dictionaryFound[index].name}
                         name={dictionaryFound[index].name}
                         description={dictionaryFound[index].description} 
                         type={dictionaryFound[index].type}
@@ -351,7 +382,7 @@ const App = () => {
                   )
                 })}
 
-                <HiOutlineSpeakerWave className='play_sound' onClick={_e => playText(moveText)} />
+                <HiOutlineSpeakerWave className='play_sound' onClick={_e => speakText(moveText)} />
             </MoveItem>
           )
         })}

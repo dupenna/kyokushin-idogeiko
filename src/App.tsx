@@ -253,20 +253,6 @@ const App = () => {
     setIdogeiko(buildMoves({ kyu: currentKyu, stand: currentStand, amount: currentAmount }))
   }
 
-  // const tts = new SpeechSynthesisUtterance()
-  // const synth = window.speechSynthesis;
-
-  // const voices = synth.getVoices();
-  // const voice = voices.find(voice => voice.voiceURI === 'Google 日本語');
-
-  // if (voice) tts.voice = voice;
-  // else console.warn('A voz Google 日本語 não foi encontrada', {voices})
-
-  // const speakText = (text: string) => {
-  //   tts.text = text;
-  //   window.speechSynthesis.speak(tts);
-  // }
-
   useEffect(() => {
     const synth = window.speechSynthesis;
 

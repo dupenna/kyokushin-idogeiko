@@ -318,10 +318,10 @@ const App = () => {
       <Subtitle>Movimentos</Subtitle>
 
       <Moves>
-        <MoveItem>
+        <MoveItem key={currentStand}>
           <PiPersonSimpleTaiChiBold className='type_icon' />
           <Word>{capitalizeFirstLetters(currentStand)}</Word>&nbsp;
-          <HiOutlineSpeakerWave className='play_sound' onClick={_e => speakText(currentStand)} />
+          {voices.length > 0 && <HiOutlineSpeakerWave className='play_sound' onClick={_e => speakText(currentStand)} />}
         </MoveItem>
 
         {idogeiko.map(move => {
@@ -366,9 +366,10 @@ const App = () => {
                     &nbsp;
                   </>
                   )
-                })}
+                })
+              }
 
-                <HiOutlineSpeakerWave className='play_sound' onClick={_e => speakText(moveText)} />
+              {voices.length > 0 && <HiOutlineSpeakerWave className='play_sound' onClick={_e => speakText(moveText)} />}
             </MoveItem>
           )
         })}

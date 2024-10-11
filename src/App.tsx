@@ -6,6 +6,10 @@ import { Direction, Height, Kyu, Move, Variation } from './data/types';
 
 import { Tooltip } from 'react-tooltip'
 
+import { MdOutlineShield } from "react-icons/md";
+import { LuSword } from "react-icons/lu";
+import { BsPersonStanding } from "react-icons/bs";
+
 import { useState } from 'react';
 
 import logo from './assets/logo.svg'
@@ -22,16 +26,20 @@ const Container = styled.div`
   background-color: #FFF;
   height: 100%;
   border-radius: 1rem;
-  max-width: 350px;
+  max-width: 420px;
   margin: 0 auto;
   box-shadow: 0 0 1rem #BBB;
   padding: 1rem;
   overflow-y: scroll;
+  overflow-x: hidden;
+`;
+const Header = styled.header`
+  display: flex;
+  margin: .5rem 0;
 `;
 
 const Logo = styled.figure`
-  width: 40vw;
-  max-width: 180px;
+  width: 40%;
   & > img {
     width: 100%;
   }
@@ -39,8 +47,10 @@ const Logo = styled.figure`
 
 const Title = styled.h1`
   position: relative;
-  font-size: 1.4rem;
+  font-size: 1.2rem;
   text-align: center;
+  align-content: center;
+  line-height: 1.6rem;
 `;
 
 const Subtitle = styled.h2`
@@ -73,14 +83,32 @@ const BuildButton = styled.button`
   width: 100%;
   max-width: 350px;
   font-size: .8rem;
-  height: 2rem;
   background-color: #DA251C;
   border-radius: .4rem;
+  padding: .5rem;
   color: #FFF;
   cursor: pointer;
   font-weight: bold;
   border: 0;
   text-align: center;
+`;
+
+const Moves = styled.ul`
+  list-style: none;
+  width: 100%;
+`;
+
+const MoveItem = styled.li`
+  position: relative;
+  list-style: none;
+  margin: 5px 0;
+  white-space: nowrap;
+  padding-left: 1rem;
+  & svg {
+    position: absolute;
+    left: 0;
+    top: 5px;
+  }
 `;
 
 const Word = styled.span`
@@ -218,11 +246,13 @@ const App = () => {
   
   return (
     <Container>
-      <Logo>
-        <img src={logo} alt="Idogeiko" />
-      </Logo>
+      <Header>
+        <Logo>
+          <img src={logo} alt="Idogeiko" />
+        </Logo>
 
-      <Title>Gerador de Idogeiko Shinkyokushin</Title>
+        <Title>Gerador de Idogeiko Shinkyokushin</Title>
+      </Header>
 
       <OptionsContainer>
         <Option defaultValue={currentKyu} onChange={e => handleKyuChange(e)}>
@@ -247,46 +277,54 @@ const App = () => {
 
       <Subtitle>Movimentos</Subtitle>
 
-      <p>{capitalizeFirstLetters(currentStand)} (posição)</p>
+      <Moves>
+        <MoveItem>
+          <BsPersonStanding />
+          <Word>{capitalizeFirstLetters(currentStand)} (posição)</Word>
+        </MoveItem>
 
-      {idogeiko.map(move => {
-        const moveText = ''
-          + ((move.direction && move.direction.name != Directions.Oi) ? `${move.direction?.name} ` : '')
-          + move.name
-            .replace('{height}', move.height?.name || '')
-            .replace('{variation}', move.variation?.name || '')
-            .replace('{direction}', move.direction?.name || '')
+        {idogeiko.map(move => {
+          const moveText = ''
+            + ((move.direction && move.direction.name != Directions.Oi) ? `${move.direction?.name} ` : '')
+            + move.name
+              .replace('{height}', move.height?.name || '')
+              .replace('{variation}', move.variation?.name || '')
+              .replace('{direction}', move.direction?.name || '')
 
-        const { newText, dictionaryFound } = dictionaryReplace({ text: moveText, dictionary })
+          const { newText, dictionaryFound } = dictionaryReplace({ text: moveText, dictionary })
 
-        console.log( { newText, dictionaryFound } )
+          console.log( { newText, dictionaryFound } )
 
-        return(
-          <p key={move.name}>
-            {newText.split(' ').map((word) => {
-              if (word.match(/{\d*}/)) {
-                const matches = word.match(/{(\d*)}/);
-                
-                if (!matches) return word;
+          return(
+            <MoveItem key={move.name}>
+              {move.type == MoveTypes.Defense && <MdOutlineShield />}
+              {move.type == MoveTypes.Strike && <LuSword />}
 
-                const index = Number(matches[1])
+              {newText.split(' ').map((word) => {
+                if (word.match(/{\d*}/)) {
+                  const matches = word.match(/{(\d*)}/);
+                  
+                  if (!matches) return word;
 
-                return(
-                  <WordDictionary 
-                    name={dictionaryFound[index].name}
-                    description={dictionaryFound[index].description} 
-                    type={dictionaryFound[index].type}
-                  />
-                )
-              }
+                  const index = Number(matches[1])
 
-              return <Word>{capitalizeFirstLetters(word)}</Word>
-            })}
-          </p>
-        )
-      })}
+                  return(
+                    <WordDictionary 
+                      name={dictionaryFound[index].name}
+                      description={dictionaryFound[index].description} 
+                      type={dictionaryFound[index].type}
+                    />
+                  )
+                }
 
-      <Tooltip id="move-tooltip" />
+                return <Word>{capitalizeFirstLetters(word)}</Word>
+              })}
+            </MoveItem>
+          )
+        })}
+      </Moves>
+
+      <Tooltip id="move-tooltip" place="top-start" />
     </Container>
   )
 }

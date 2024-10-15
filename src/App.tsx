@@ -172,10 +172,12 @@ const buildMoves = (params: { kyu: Kyu, stand: Stands, amount: number }) => {
 
     return variationsWithScore
   }
-  const getMoveDirection = (move:MoveWithScore) => {
+  const getMoveDirection = (move:MoveWithScore, preventDirection:Direction | null) => {
     if (!move.directions) return null;
 
-    const directionsWithScore = move.directions
+    const directions = (move.directions.length >= 2 && preventDirection) ? move.directions.filter(direction => direction.name != preventDirection.name || null) : move.directions;
+
+    const directionsWithScore = directions
       .map(direction => ({ ...direction, score: Math.round(Math.random()*100) * direction.incidence }))
       .sort((directionA, directionB) => directionB.score - directionA.score)
       .shift()
@@ -186,7 +188,10 @@ const buildMoves = (params: { kyu: Kyu, stand: Stands, amount: number }) => {
   }
 
   while (movesFinal.length < params.amount) {
-    const nextMoveType = movesFinal.length == 0 ? MoveTypes.Strike : movesFinal[movesFinal.length - 1].type == MoveTypes.Strike ? MoveTypes.Defense : MoveTypes.Strike;
+    // const nextMoveType = movesFinal.length == 0 ? MoveTypes.Strike : movesFinal[movesFinal.length - 1].type == MoveTypes.Strike ? MoveTypes.Defense : MoveTypes.Strike;
+    const nextMoveType = movesFinal.length >= 2 && movesFinal.slice(-1)?.shift()?.type == movesFinal.slice(-2)?.shift()?.type
+      ? (movesFinal.slice(-1).shift()?.type == MoveTypes.Strike ? MoveTypes.Defense : MoveTypes.Strike)
+      : (Math.round(Math.random()*100) % 2 === 0 ? MoveTypes.Strike : MoveTypes.Defense);
 
     const nextMove = movesWithScore
       .sort((moveA, moveB) => moveB.score - moveA.score)
@@ -194,7 +199,11 @@ const buildMoves = (params: { kyu: Kyu, stand: Stands, amount: number }) => {
       .shift()
 
     if (nextMove) {
-      movesFinal.push({ ...nextMove, height: getMoveHeight(nextMove), variation: getMoveVariation(nextMove), direction: getMoveDirection(nextMove) });
+      const preventDirection = movesFinal.length >= 2 && movesFinal.slice(-1).shift()?.direction?.name == movesFinal.slice(-2).shift()?.direction?.name 
+        ? movesFinal.slice(-1).shift()?.direction || null
+        : null;
+
+        movesFinal.push({ ...nextMove, height: getMoveHeight(nextMove), variation: getMoveVariation(nextMove), direction: getMoveDirection(nextMove, preventDirection) });
     } else {
       console.warn("Nenhum movimento restante para adicionar.");
       break;
@@ -224,7 +233,7 @@ const App = () => {
   const [ currentKyu, setCurrentKyu ] = useState<Kyu>(10)
   const [ currentStand, setCurrentStand ] = useState<Stands>(Stands.Zenkutsu)
   const [ currentAmount, setCurrentAmount ] = useState<number>(3)
-  const [voices, setVoices] = useState<Array<SpeechSynthesisVoice>>([]);
+  const [ voices, setVoices ] = useState<Array<SpeechSynthesisVoice>>([]);
 
   const handleKyuChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
     const kyu = Number(e.target.value);
@@ -253,21 +262,6 @@ const App = () => {
     setIdogeiko(buildMoves({ kyu: currentKyu, stand: currentStand, amount: currentAmount }))
   }
 
-  useEffect(() => {
-    const synth = window.speechSynthesis;
-
-    const loadVoices = () => {
-      const availableVoices = synth.getVoices();
-      setVoices(availableVoices);
-    };
-
-    if (synth.onvoiceschanged !== undefined) {
-      synth.onvoiceschanged = loadVoices;
-    }
-
-    loadVoices();
-  }, []);
-
   const speakText = (text: string) => {
     if (voices.length > 0) {
       const tts = new SpeechSynthesisUtterance(text);
@@ -284,6 +278,21 @@ const App = () => {
     }
   };
   
+  useEffect(() => {
+    const synth = window.speechSynthesis;
+
+    const loadVoices = () => {
+      const availableVoices = synth.getVoices();
+      setVoices(availableVoices);
+    };
+
+    if (synth.onvoiceschanged !== undefined) {
+      synth.onvoiceschanged = loadVoices;
+    }
+
+    loadVoices();
+  }, []);
+
   return (
     <Container>
       <Header>

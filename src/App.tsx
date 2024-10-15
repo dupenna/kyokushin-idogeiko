@@ -271,13 +271,13 @@ const App = () => {
   const speakText = (text: string) => {
     if (voices.length > 0) {
       const tts = new SpeechSynthesisUtterance(text);
-      const voice = voices.find(voice => voice.voiceURI === 'Google 日本語');
+      const voice = voices.find(voice => voice.voiceURI === 'Google 日本語') || voices.find(voice => voice.lang.startsWith('ja')) || voices[0];
 
       if (voice) {
         tts.voice = voice;
         window.speechSynthesis.speak(tts);
       } else {
-        console.warn('A voz Google 日本語 não foi encontrada', { voices });
+        console.warn('Nenhum voz foi encontrada');
       }
     } else {
       console.warn('As vozes ainda não estão disponíveis');
@@ -368,8 +368,6 @@ const App = () => {
                   )
                 })
               }
-
-              {voices.length > 0 && <HiOutlineSpeakerWave className='play_sound' onClick={_e => speakText(moveText)} />}
             </MoveItem>
           )
         })}

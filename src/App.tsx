@@ -368,12 +368,12 @@ const App = () => {
                   )
                 })
               }
+
+              {voices.length > 0 && <HiOutlineSpeakerWave className='play_sound' onClick={_e => speakText(moveText)} />}
             </MoveItem>
           )
         })}
       </Moves>
-
-      {voices.map(voice => <p>{voice.name}</p>)}
 
       <Tooltip id="move-tooltip" place="top-start" />
     </Container>

@@ -375,6 +375,8 @@ const App = () => {
         })}
       </Moves>
 
+      {voices.map(voice => <p>{voice.name}</p>)}
+
       <Tooltip id="move-tooltip" place="top-start" />
     </Container>
   )
